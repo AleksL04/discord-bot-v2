@@ -10,7 +10,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "discord.js": "^14.24.1"
+    "discord.js": "^14.24.1",
+    "moonlink.js": "^4.60.18"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
