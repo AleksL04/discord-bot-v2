@@ -3,7 +3,6 @@ import 'dotenv/config'; // This must be first
 
 // In config.js (as an ES Module)
 export default {
-    DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN,
     guildId: process.env.GUILD_ID,
     clientId: process.env.CLIENT_ID,
     token: process.env.DISCORD_BOT_TOKEN,

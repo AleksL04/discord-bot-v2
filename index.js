@@ -133,4 +133,4 @@ client.on('raw', (packet) => {
 });
 
 // Log in to Discord with your client's token
-client.login(config.DISCORD_BOT_TOKEN);
+client.login(config.token);
