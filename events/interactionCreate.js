@@ -7,8 +7,7 @@ const youtube = google.youtube({
     auth: config.YOUTUBE_API_KEY,
 });
 
-const autocompleteTimestamps = new Map();
-
+const autocompleteDebounce = new Map();
 const AUTOCOMPLETE_COOLDOWN = 300;
 const MIN_QUERY_LENGTH = 3;
 
@@ -54,20 +53,27 @@ export default {
                     return await interaction.respond([]);
                 }
 
-                const userId = interaction.user.id;
-                const now = Date.now();
-                const lastTime = autocompleteTimestamps.get(userId) || 0; // Get last time, or 0
-
-                // If it's been less than 500ms, send empty results
-                if (now - lastTime < AUTOCOMPLETE_COOLDOWN) {
-                    return await interaction.respond([]);
+                if (autocompleteDebounce.has(userId)) {
+                    clearTimeout(autocompleteDebounce.get(userId));
                 }
 
-                // Get suggestions from YouTube
-                const suggestions = await getYoutubeSuggestions(focusedValue);
+                // 2. Set a *new* timer.
+                const newTimer = setTimeout(async () => {
+                    try {
+                        // This code runs *only* when the 500ms pause is over
+                        const suggestions = await getYoutubeSuggestions(focusedValue);
+                        await interaction.respond(suggestions);
+                    } catch (apiError) {
+                        console.error('Error during debounced API call:', apiError);
+                        await interaction.respond([]);
+                    } finally {
+                        // Once we're done, remove the timer from the Map
+                        autocompleteDebounce.delete(userId);
+                    }
+                }, DEBOUNCE_DELAY);
 
-                // Send the suggestions back to Discord
-                await interaction.respond(suggestions);
+                // 3. Store the new timer
+                autocompleteDebounce.set(userId, newTimer);
 
             } catch (error) {
                 console.error('Error in autocomplete handler:', error);
