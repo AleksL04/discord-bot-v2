@@ -12,6 +12,7 @@
   "dependencies": {
     "@google/genai": "^1.28.0",
     "discord.js": "^14.24.1",
+    "googleapis": "^164.1.0",
     "moonlink.js": "^4.60.18"
   },
   "devDependencies": {

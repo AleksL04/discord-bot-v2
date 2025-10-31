@@ -7,6 +7,7 @@ export default {
     clientId: process.env.CLIENT_ID,
     token: process.env.DISCORD_BOT_TOKEN,
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+    YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY,
     prefix: "!",
     lavalink: {
         host: "192.168.1.249",

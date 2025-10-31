@@ -1,23 +1,111 @@
 // events/interactionCreate.js
+import { google } from 'googleapis';
+import config from './../config.js';
+
+const youtube = google.youtube({
+    version: 'v3',
+    auth: config.YOUTUBE_API_KEY,
+});
+
+const autocompleteTimestamps = new Map();
+
+const AUTOCOMPLETE_COOLDOWN = 300;
+const MIN_QUERY_LENGTH = 3;
 
 // Combine 'name' and 'execute' into one object and export it as the default
 export default {
     name: 'interactionCreate',
-    
-    execute(interaction, client) {
-        if (!interaction.isCommand()) return;
 
-        const command = client.commands.get(interaction.commandName);
-        if (!command) return;
+    async execute(interaction, client) {
+        if (interaction.isChatInputCommand()) {
+            const command = client.commands.get(interaction.commandName);
+            if (!command) return;
 
-        try {
-            command.execute(interaction, client);
-        } catch (error) {
-            console.error(error);
-            interaction.reply({
-                content: 'There was an error executing this command!',
-                ephemeral: true,
-            });
+            try {
+                await command.execute(interaction, client);
+            } catch (error) {
+                console.error(error);
+
+                if (interaction.replied || interaction.deferred) {
+                    await interaction.followUp({
+                        content: 'There was an error while executing this command!',
+                        ephemeral: true,
+                    });
+                } else {
+                    await interaction.reply({
+                        content: 'There was an error while executing this command!',
+                        ephemeral: true,
+                    });
+                }
+            }
+            return; // Stop execution here
+        }
+        if (interaction.isAutocomplete()) {
+
+            // Only run for the 'play' command's 'song' option
+            if (interaction.commandName !== 'play') return;
+
+            try {
+                // Get what the user is currently typing
+                const focusedValue = interaction.options.getFocused();
+
+                // If they haven't typed anything, send no suggestions
+                if (focusedValue.length < MIN_QUERY_LENGTH) {
+                    return await interaction.respond([]);
+                }
+
+                const userId = interaction.user.id;
+                const now = Date.now();
+                const lastTime = autocompleteTimestamps.get(userId) || 0; // Get last time, or 0
+
+                // If it's been less than 500ms, send empty results
+                if (now - lastTime < AUTOCOMPLETE_COOLDOWN) {
+                    return await interaction.respond([]);
+                }
+
+                // Get suggestions from YouTube
+                const suggestions = await getYoutubeSuggestions(focusedValue);
+
+                // Send the suggestions back to Discord
+                await interaction.respond(suggestions);
+
+            } catch (error) {
+                console.error('Error in autocomplete handler:', error);
+                await interaction.respond([]); // Send empty on error
+            }
+            return; // Stop execution here
         }
     }
 };
+
+async function getYoutubeSuggestions(query) {
+    try {
+        const response = await youtube.search.list({
+            part: 'snippet',
+            q: query,
+            type: 'video',
+            maxResults: 10, // You can change this, but Discord shows a max of 25
+        });
+
+        if (!response.data.items) {
+            return [];
+        }
+
+        // Format the results for Discord's respond() method
+        return response.data.items.map((item) => {
+            const title = item.snippet.title;
+            const url = `https://www.youtube.com/watch?v=${item.id.videoId}`;
+
+            return {
+                // 'name' is what the user *sees* (max 100 chars)
+                name: title.length > 100 ? title.substring(0, 97) + '...' : title,
+
+                // 'value' is what's sent to your 'play' command
+                value: url,
+            };
+        });
+    } catch (error) {
+        console.error('Error fetching YouTube suggestions:', error.message);
+        return [];
+    }
+}

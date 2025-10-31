@@ -9,7 +9,8 @@ const data = new SlashCommandBuilder()
       option
         .setName('song') // Option name
         .setDescription('The song to play (URL or search query)') // Option description
-        .setRequired(true), // Make the option required
+        .setRequired(true) // Make the option required
+        .setAutocomplete(true),
   );
 
 async function execute(interaction, client) {
