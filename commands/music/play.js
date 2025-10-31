@@ -25,7 +25,6 @@ async function execute(interaction, client) {
 
   // Step 2: Get the search query from the command's *options*.
   const query = interaction.options.getString('song');
-  // The check for 'args.length' is no longer needed because the option is 'required'
 
   // Step 3: Create a player for the guild.
   const player = client.manager.players.create({
