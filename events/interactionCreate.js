@@ -17,9 +17,9 @@ export default {
     name: Events.InteractionCreate,
 
     async execute(interaction, client) {
+        const userId = interaction.user.id;
         if (interaction.isChatInputCommand()) {
             const command = client.commands.get(interaction.commandName);
-            const userId = interaction.user.id;
             if (!command) return;
 
             try {
