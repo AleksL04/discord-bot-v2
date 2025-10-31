@@ -19,7 +19,7 @@ Example of a valid response:
   "Hotel California by Eagles"
 ]
 
-***ABSOLUTELY DO NOT*** include any commentary, explanatory text, titles, quotes (like "mardowk quotes"), or any other non-JSON characters outside of the array. The response must start with '[' and end with ']'.`;
+***ABSOLUTELY DO NOT*** include any commentary, explanatory text, titles, markdown quotes, or any other non-JSON characters outside of the array. The response must start with '[' and end with ']'.`;
 
 
 const data = new SlashCommandBuilder()
