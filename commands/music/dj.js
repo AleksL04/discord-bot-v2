@@ -47,9 +47,11 @@ async function execute(interaction, client) {
             config: {
                 systemInstruction: systemPrompt
             },
-            // 2. NEW: This forces the model to output valid JSON
             generationConfig: {
                 responseMimeType: "application/json"
+            },
+            thinkingConfig: {
+                thinkingBudget: 0 // Disables thinking for max speed
             }
         });
 
@@ -72,39 +74,51 @@ async function execute(interaction, client) {
     // Step 4: Connect to the voice channel.
     player.connect();
 
-    for (const song of playlist) {
-        // Step 5: Search for the requested track.
-        const searchResult = await client.manager.search({
+    // Step 5: Search for all tracks in parallel
+    console.log("Searching for all 10 tracks in parallel...");
+
+    // Create an array of search promises (don't "await" them yet)
+    const searchPromises = playlist.map(song =>
+        client.manager.search({
             query: song,
             requester: interaction.user.id,
-        });
+        })
+    );
 
-        // Step 6: Handle the search results.
-        if (!searchResult.tracks.length) {
-            return interaction.editReply('No results found for your query.');
-        }
-        switch (searchResult.loadType) {
-            case 'search':
-            case 'track':
-                player.queue.add(searchResult.tracks[0]);
+    // Now, wait for ALL searches to complete
+    const searchResults = await Promise.all(searchPromises);
 
-                if (!player.playing) {
-                    player.play();
-                }
-                break;
+    // Step 6: Filter out any bad results and get the first track from each good result
+    const tracks = searchResults
+        .map(res => {
+            // Check for errors, no results, or wrong load type
+            if (!res || !res.tracks.length || res.loadType === 'empty' || res.loadType === 'error') {
+                if (res.error) console.warn(`Error loading a track: ${res.error}`);
+                return null; // Mark this as a failed search
+            }
+            // Return the best match (the first track)
+            return res.tracks[0];
+        })
+        .filter(track => track !== null); // Filter out all the nulls (failed searches)
 
-            case 'empty':
-                await interaction.editReply('No matches found for your query!');
-                break;
-
-            case 'error':
-                await interaction.editReply(`An error occurred while loading the track: ${searchResult.error || 'Unknown error'}`);
-                break;
-        }
+    // Check if we found any tracks at all
+    if (!tracks.length) {
+        return interaction.editReply('Could not find any usable tracks for your playlist.');
     }
+
+    // Step 7: Add all found tracks to the queue in one go
+    player.queue.add(tracks);
+
+    // Step 8: Start the player *once* if it's not already playing
+    if (!player.playing) {
+        player.play();
+    }
+
+    // Final reply
     await interaction.editReply({
-        content: `Added generated playlist to the queue.`,
+        content: `Added **${tracks.length}** generated songs to the queue.`,
     });
+
 }
 
 export default {
