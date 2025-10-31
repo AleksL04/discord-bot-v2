@@ -1,7 +1,8 @@
 // events/messageCreate.js
+import { Events } from 'discord.js'; // <-- 1. Import Events
 
 export default {
-    name: 'messageCreate',
+    name: Events.MessageCreate,
 
     execute(message, client) {
         // Ignore messages from bots or messages without the prefix

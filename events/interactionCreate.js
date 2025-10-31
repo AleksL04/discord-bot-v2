@@ -1,5 +1,6 @@
 // events/interactionCreate.js
 import { google } from 'googleapis';
+import { Events } from 'discord.js'; // <-- 1. Import Events
 import config from './../config.js';
 
 const youtube = google.youtube({
@@ -13,7 +14,7 @@ const MIN_QUERY_LENGTH = 3;
 
 // Combine 'name' and 'execute' into one object and export it as the default
 export default {
-    name: 'interactionCreate',
+    name: Events.InteractionCreate,
 
     async execute(interaction, client) {
         if (interaction.isChatInputCommand()) {
