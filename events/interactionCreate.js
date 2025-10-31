@@ -8,7 +8,7 @@ const youtube = google.youtube({
 });
 
 const autocompleteDebounce = new Map();
-const AUTOCOMPLETE_COOLDOWN = 300;
+const DEBOUNCE_DELAY = 300;
 const MIN_QUERY_LENGTH = 3;
 
 // Combine 'name' and 'execute' into one object and export it as the default
@@ -18,6 +18,7 @@ export default {
     async execute(interaction, client) {
         if (interaction.isChatInputCommand()) {
             const command = client.commands.get(interaction.commandName);
+            const userId = interaction.user.id;
             if (!command) return;
 
             try {
