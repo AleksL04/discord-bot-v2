@@ -5,11 +5,21 @@ import config from "../../config.js"
 
 const ai = new GoogleGenAI({ apiKey: config.GEMINI_API_KEY });
 
-const systemPrompt = `You are a playlist assistant. Your only task is to generate a list of 10 songs based on the user's request.
-You MUST output a single, valid JSON array.
-Each element in the array must be a string in the format: "Song Name by Artist".
-Do NOT output anything else (like "Here is your list:" or \`\`\`json ... \`\`\`).
-Your entire response must be ONLY the JSON array.`;
+const systemPrompt = `You are a high-quality music playlist assistant.
+Your ONLY task is to generate a list of 10 songs based on the user's prompt (which will be a theme, vibe, or genre).
+You must find 10 **distinct** and **highly relevant** songs that fit the theme.
+
+Your entire response MUST be a single, valid JSON array.
+Each element in the array MUST be a string in the format: "Song Name by Artist".
+
+Example of a valid response:
+[
+  "Bohemian Rhapsody by Queen",
+  "Stairway to Heaven by Led Zeppelin",
+  "Hotel California by Eagles"
+]
+
+***ABSOLUTELY DO NOT*** include any commentary, explanatory text, titles, quotes (like "mardowk quotes"), or any other non-JSON characters outside of the array. The response must start with '[' and end with ']'.`;
 
 
 const data = new SlashCommandBuilder()
