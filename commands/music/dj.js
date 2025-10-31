@@ -59,9 +59,6 @@ async function execute(interaction, client) {
             },
             generationConfig: {
                 responseMimeType: "application/json"
-            },
-            thinkingConfig: {
-                thinkingBudget: 0 // Disables thinking for max speed
             }
         });
 
