@@ -3,12 +3,12 @@ import { SlashCommandBuilder } from 'discord.js';
 
 const data = new SlashCommandBuilder()
   .setName('play') // Command name
-  .setDescription('Play a song in a voice channel') // Command description
+  .setDescription('Plays songs & playlists from YouTube, Spotify, or a search query') // Command description
   .addStringOption(
     (option) =>
       option
         .setName('song') // Option name
-        .setDescription('The song to play (URL or search query)') // Option description
+        .setDescription('A song name, search query, or a YouTube/Spotify link (song or playlist)') // Option description
         .setRequired(true) // Make the option required
         .setAutocomplete(true),
   );
