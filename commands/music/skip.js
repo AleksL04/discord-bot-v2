@@ -3,9 +3,17 @@ import { SlashCommandBuilder } from 'discord.js';
 
 const data = new SlashCommandBuilder()
   .setName('skip')
-  .setDescription('Skip the current song');
+  .setDescription('Skip the current song')
+  .addIntegerOption(
+    (option) =>
+      option
+        .setName('number')
+        .setDescription('Number to skip')
+        .setRequired(false)
+        .setMinValue(1)
+  );
 
-function execute(interaction, client) {
+async function execute(interaction, client) {
   const player = client.manager.players.get(interaction.guild.id);
 
   if (!player) {
@@ -30,10 +38,18 @@ function execute(interaction, client) {
     });
   }
 
-  const currentTrack = player.current;
-  player.skip();
+  const amount = interaction.options.getInteger('number')||1;
 
-  interaction.reply(`Skipped: **${currentTrack.title}**`);
+  const size = player.queue.size+1;
+
+  if(amount>size){
+    return interaction.reply(`Error: Skipped too many, dumbass. Only ${size} songs available.`);
+  }
+
+  player.skip(amount);
+  interaction.reply(`Skipped: **${amount}**`);
+  
+
 }
 
 export default {
