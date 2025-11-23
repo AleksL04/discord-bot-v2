@@ -45,8 +45,12 @@ async function execute(interaction, client) {
   if(amount>size){
     return interaction.reply(`Error: Skipped too many, dumbass. Only ${size} songs available.`);
   }
+  
+  for(let i =0; i<amount-1; i++){
+    player.queue.remove(0)
+  }
+  player.skip()
 
-  player.skip(amount);
   interaction.reply(`Skipped: **${amount}**`);
   
 
