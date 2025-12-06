@@ -52,8 +52,6 @@ async function execute(interaction, client) {
   player.skip()
 
   interaction.reply(`Skipped: **${amount}**`);
-  
-
 }
 
 export default {
