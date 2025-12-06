@@ -10,9 +10,9 @@ export default {
     YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY,
     prefix: "!",
     lavalink: {
-        host: "192.168.1.249",
-        port: 2333,
-        password: "youshallnotpass",
-        secure: false
+        host: process.env.LAVALINK_HOST || "192.168.1.249",
+        port: process.env.LAVALINK_PORT || 2333,
+        password: process.env.LAVALINK_PASSWORD || "youshallnotpass",
+        secure: process.env.LAVALINK_SECURE === 'true'
     }
 };
